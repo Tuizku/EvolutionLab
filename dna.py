@@ -6,7 +6,8 @@ class DNA:
         num_bits = (k + 31) // 32  # Calculate how many 32-bit integers are needed
         random_ints = np.random.randint(0, 2**32, size=num_bits, dtype=np.uint32)
         random_bits = sum(int(x) << (32 * i) for i, x in enumerate(random_ints))
-        return random_bits & ((1 << k) - 1)  # Trim to k bits
+        random_int = random_bits & ((1 << k) - 1)  # Trim to k bits
+        return bin(random_int)[2:].zfill(k)
     #endregion
 
     def __init__(self, inputs, outputs, genome_len : int, inner_neurons : int, source_id_len = 5, sink_id_len = 5, weight_len = 12):
