@@ -7,3 +7,6 @@ class Lab:
         self.world_size : int = world_size
         self.population : int = population
         self.steps_per_gen : int = steps_per_gen
+    
+    def run_generation(self):
+        pass
