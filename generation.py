@@ -8,3 +8,10 @@ class Generation:
 
         # Setup
         
+    
+    def run(self):
+        pass
+
+    def change_pos(self, x, y, x_change, y_change):
+        """Returns true if the position was possible to change."""
+        pass
