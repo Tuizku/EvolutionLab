@@ -33,8 +33,20 @@ class DNA:
         # Test
         print(self.random_genome())
 
-    def random_genome(self):
+
+    def random_genome(self) -> list:
+        """Returns a random genome based on dna's settings."""
         result = []
         for i in range(self.genome_len):
             result.append(self.numpy_getrandbits(self.gene_len))
         return result
+    def random_genomes(self, count : int) -> list:
+        """Returns multiple random genomes based on dna's settings."""
+        result = []
+        for i in range(count):
+            result.append(self.random_genome())
+        return result
+    
+
+    def crossover(self, genomes, population):
+        pass
