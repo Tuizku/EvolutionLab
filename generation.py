@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from dna import DNA
 from creature import Creature
 
@@ -11,18 +12,41 @@ class Generation:
         self.population : int = population
         self.steps_per_gen : int = steps_per_gen
         self.map = np.zeros(shape=(world_size, world_size), dtype=np.int8)
+
+        self.steps_data = []
         
     
-    def run(self):
+    def run(self, save_steps : bool = False):
         # Create the creatures
         creatures = []
         for genome in self.genomes:
-            creatures.append(Creature(genome, self.dna, self))
+            x, y = self.get_empty_pos()
+            data = {
+                "x": x,
+                "y": y
+            }
+            creatures.append(Creature(data, genome, self.dna, self))
         
         # Run through the steps
-        # ...
+        for step in range(self.steps_per_gen):
+            for creature in creatures:
+                creature.update()
+            
+            if save_steps == True:
+                self.steps_data.append({"map": copy.deepcopy(self.map)})
+            
 
 
+
+    def get_empty_pos(self):
+        for i in range(10000):
+            x = np.random.randint(0, self.world_size)
+            y = np.random.randint(0, self.world_size)
+            if self.map[x][y] == 0:
+                return x, y
+        
+        print("no empty pos found after 10 000 iterations.")
+        return -1, -1
 
     def is_pos_in_bounds(self, x, y):
         """Returns true if the position was in bounds of the map."""

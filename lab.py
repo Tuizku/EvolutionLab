@@ -11,7 +11,7 @@ class Lab:
 
         self.gen : int = -1
     
-    def run_generation(self):
+    def run_generation(self, return_steps_data = False):
         self.gen += 1
 
         # Get the genomes for this generation
@@ -26,4 +26,7 @@ class Lab:
         
         # Create the new generation
         generation = Generation(gen_genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
-        generation.run()
+        generation.run(return_steps_data)
+
+        if return_steps_data == True:
+            return generation.steps_data

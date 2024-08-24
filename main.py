@@ -1,4 +1,5 @@
 #import numpy as np
+from lab import Lab
 from dna import DNA
 from generation import Generation
 
@@ -38,3 +39,5 @@ input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
 
 dna = DNA(input_funcs, output_funcs, 4, 1)
+lab = Lab(dna)
+lab.run_generation()
