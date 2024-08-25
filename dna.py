@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class DNA:
     #region Functions
@@ -46,7 +47,53 @@ class DNA:
         return result
     
     def crossover(self, genomes, population):
-        pass
+        """
+        Between genes crossover.
+        
+        Returns all new genomes.
+        """
+        survived = len(genomes)
+        new_genomes = []
+
+        # Shuffle the input list, so that all genomes have the same chance to evolve.
+        random.shuffle(genomes)
+
+        # Add extra parents to the new genomes, so that all input genomes will have a couple.
+        extra_parents = survived % 2
+        if extra_parents > 0:
+            new_genomes.extend(genomes[-extra_parents:])
+            genomes = genomes[:-extra_parents]
+
+        # Calculate parents (in couples) and needed children counts
+        parents_count = survived - extra_parents
+        needed_children = population - extra_parents
+
+        # Calculate the children amounts per couple + how many will create an additional child
+        children_per_couple = (needed_children / parents_count) * 2
+        default_children_per_couple = int(np.floor(children_per_couple))
+        additional_childs = int(np.round((children_per_couple - default_children_per_couple) * (parents_count * 0.5)))
+
+        for parent_i in range(0, parents_count, 2):
+            parent0 = genomes[parent_i]
+            parent1 = genomes[parent_i + 1]
+            
+            # Calculate how many children this couple creates
+            children_count = default_children_per_couple
+            if additional_childs > 0:
+                children_count += 1
+                additional_childs -= 1
+            
+            # Create the children 2 offsprings at a time
+            for child_i in range(0, children_count, 2):
+                crossover_point = np.random.randint(self.genome_len)
+                new_genomes.append(parent0[:crossover_point] + parent1[crossover_point:])
+                if child_i + 1 < children_count: # if child_id + 1 == 3 and children_count == 3, then it only creates the first offspring
+                    new_genomes.append(parent1[:crossover_point] + parent0[crossover_point:])
+        
+        if len(new_genomes) < population:
+            print(f"dna crossover resulted a smaller population ({len(new_genomes)}/{population})")
+        return new_genomes
+
 
 
     def decode_gene(self, gene : str, rerange : bool = False):

@@ -37,8 +37,16 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-
 dna = DNA(input_funcs, output_funcs, 4, 1)
-lab = Lab(dna)
+
+selection_criteria = [{
+    "name": "x",
+    "operator": ">",
+    "value": 15
+}]
+lab = Lab(dna, selection_criteria, steps_per_gen=48)
+steps_data = lab.run_generation(True)
+view.view_generation(steps_data)
+lab.run_generations(18)
 steps_data = lab.run_generation(True)
 view.view_generation(steps_data)

@@ -18,23 +18,50 @@ class Generation:
     
     def run(self, save_steps : bool = False):
         # Create the creatures
-        creatures = []
+        self.creatures = []
         for genome in self.genomes:
             x, y = self.get_empty_pos()
             data = {
                 "x": x,
                 "y": y
             }
-            creatures.append(Creature(data, genome, self.dna, self))
+            self.creatures.append(Creature(data, genome, self.dna, self))
         
         # Run through the steps
         for step in range(self.steps_per_gen):
-            for creature in creatures:
+            for creature in self.creatures:
                 creature.update()
             
             if save_steps == True:
                 self.steps_data.append({"map": copy.deepcopy(self.map)})
             
+    def get_selection_genomes(self, selection_criteria : list):
+        result_genomes = []
+        
+        # Loop through all creatures and adds the creatures that match the criteria to the result list.
+        for creature in self.creatures:
+            data = creature.data
+            survives = True
+
+            # Loop through all criteria
+            for criterion in selection_criteria:
+                name = criterion["name"]
+                operator = criterion["operator"]
+                value = criterion["value"]
+
+                # Check if creature survives by the operator that is being used
+                if operator == "=":
+                    if data[name] != value: survives = False
+                elif operator == "<":
+                    if data[name] >= value: survives = False
+                elif operator == ">":
+                    if data[name] <= value: survives = False
+            
+            # Creature's genome is added to the result, IF it survives.
+            if survives == True:
+                result_genomes.append(creature.genome)
+        
+        return result_genomes
 
 
 
