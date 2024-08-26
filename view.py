@@ -1,4 +1,7 @@
 from tkinter import *
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from mpl_toolkits.axes_grid1 import host_subplot
 import time
 
 def view_generation(steps_data):
@@ -59,3 +62,27 @@ def view_generation(steps_data):
         root.destroy()
     except:
         return
+
+def view_evolution_chart(gens_data : list, population : int, genome_len : int):
+    survived_list = [gen["survived"] for gen in gens_data]
+
+    diversity_list = [gen["diversity"] for gen in gens_data]
+
+    host = host_subplot(111)
+    par = host.twinx()
+
+    host.set_xlabel("Generation")
+    host.set_ylabel("Survived")
+    par.set_ylabel("Diversity")
+
+    p1, = host.plot(survived_list, label="Survived")
+    p2, = par.plot(diversity_list, label="Diversity")
+    
+    host.set_ylim((0, population + 1))
+    par.set_ylim((0, 1.01))
+
+    host.legend(labelcolor="linecolor")
+    host.yaxis.get_label().set_color(p1.get_color())
+    par.yaxis.get_label().set_color(p2.get_color())
+
+    plt.show()

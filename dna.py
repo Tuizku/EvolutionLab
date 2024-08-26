@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import time
 
 class DNA:
     #region Functions
@@ -34,6 +35,7 @@ class DNA:
         self.weight_point = source_id_len + sink_id_len + 2
 
 
+    # The most important functions of DNA
     def random_genome(self) -> list:
         """Returns a random genome based on dna's settings."""
         result = []
@@ -125,6 +127,7 @@ class DNA:
         return genomes
 
 
+    # Neuron / Genome managing functions
     def decode_gene(self, gene : str, rerange : bool = False):
         result = {
             "source_type": int(gene[0 : 1], 2),
@@ -190,3 +193,27 @@ class DNA:
             #print(f"{source_id}, {sink_id}, {decoded_gene["weight"]} | reranged_sink_id = {decoded_gene['sink_id']}")
         
         return conns_source_id, conns_sink_id, conns_weight
+
+    def average_hamming_distance(self, genomes):
+        """
+        Calculates the average hamming distance between the genomes.
+        This can be used to see how different dna the creatures have.
+        """
+
+        genomes_len = len(genomes)
+        diverse_bits = 0
+
+        # Takes a bit[x] from every genome and pushes it into a list. And this is repeated for the amount of bits that a genome has.
+        # After that we can compare the bits in these columns, and see how many bits are the same.
+        # This is a clever solution for this problem, and it's 500x faster than the first solution I came up with.
+        bit_columns = [[int(genome[gene_i][bit_i]) for genome in genomes]
+                       for gene_i in range(self.genome_len) 
+                       for bit_i in range(self.gene_len)]
+        for bit_column in bit_columns:
+            unique, counts = np.unique(bit_column, return_counts=True)
+            diverse_bits += counts[np.argmin(counts)]
+        
+        all_bits = self.gene_len * self.genome_len * genomes_len
+        result = diverse_bits / (all_bits * 0.5)
+
+        return result

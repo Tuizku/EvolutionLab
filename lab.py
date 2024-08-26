@@ -12,12 +12,18 @@ class Lab:
         self.steps_per_gen : int = steps_per_gen
 
         self.gen : int = -1
-        self.gens_genomes = []
+        self.gens_data = []
         self.last_survived_genomes = None
     
     def run_generation(self, genomes = None, new_gen : bool = True, return_steps_data : bool = False):
         if new_gen == True:
             self.gen += 1
+
+        gen_data = {
+            "genomes": None,
+            "survived": 0,
+            "diversity": 0
+        }
 
         # Get the genomes for this generation (if genomes haven't been imported)
         # [Gen 0] genomes are random
@@ -27,7 +33,6 @@ class Lab:
                 genomes = self.dna.random_genomes(self.population)
             else:
                 genomes = self.dna.crossover(self.last_survived_genomes, self.population)
-            self.gens_genomes.append(genomes)
         
         # Create the new generation and run it
         generation = Generation(genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
@@ -36,6 +41,11 @@ class Lab:
         # Get survived creatures genomes and save them to the lab. So the next gen can use these as parens.
         if new_gen == True:
             self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
+            gen_data["genomes"] = genomes
+            gen_data["survived"] = len(self.last_survived_genomes)
+            gen_data["diversity"] = self.dna.average_hamming_distance(genomes)
+            
+            self.gens_data.append(gen_data)
 
         if return_steps_data == True:
             return generation.steps_data

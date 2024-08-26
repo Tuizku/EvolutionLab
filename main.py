@@ -47,18 +47,34 @@ dna = DNA(input_funcs, output_funcs, 4, 1, 0.05)
 selection_criteria = [{
     "name": "x",
     "operator": ">",
-    "value": 15
+    "value": 20
+},
+{
+    "name": "y",
+    "operator": ">",
+    "value": 20
 }]
-lab = Lab(dna, selection_criteria, steps_per_gen=48, population=128)
+lab = Lab(dna, selection_criteria, steps_per_gen=64, population=128, world_size=32)
 
 
 
 # PROGRAM
 
-genomes = dna.identical_genomes(dna.random_genome(), 128)
-view.view_generation(lab.run_generation(genomes, return_steps_data=True))
-lab.run_generations(50)
-view.view_generation(lab.run_generation(return_steps_data=True))
+lab.run_generations(200)
+steps_data = lab.run_generation(return_steps_data=True)
+view.view_generation(steps_data)
+view.view_evolution_chart(lab.gens_data, lab.population, dna.genome_len)
+#print(lab.gens_data[19])
+#print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
+#lab.run_generation(dna.identical_genomes(dna.random_genome(), 128))
+#lab.run_generation()
+#print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
+
+
+#genomes = dna.identical_genomes(dna.random_genome(), 128)
+#view.view_generation(lab.run_generation(genomes, return_steps_data=True))
+#lab.run_generations(50)
+#view.view_generation(lab.run_generation(return_steps_data=True))
 
 #lab.run_generations(10)
 #steps_data = lab.run_generation(lab.gens_genomes[0], save_survived_to_lab=False, return_steps_data=True)
