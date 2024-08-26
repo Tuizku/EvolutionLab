@@ -11,7 +11,7 @@ class DNA:
         return bin(random_int)[2:].zfill(k)
     #endregion
 
-    def __init__(self, inputs, outputs, genome_len : int, inner_neurons : int, source_id_len = 5, sink_id_len = 5, weight_len = 12, weight_range = 8.0):
+    def __init__(self, inputs, outputs, genome_len : int, inner_neurons : int, mutation_rate : float, source_id_len = 5, sink_id_len = 5, weight_len = 12, weight_range = 8.0):
         # Setup DNA's variables
         self.inputs = inputs
         self.outputs = outputs
@@ -19,6 +19,7 @@ class DNA:
         self.gene_len = source_id_len + sink_id_len + weight_len + 2
         self.genome_len = genome_len
         self.inner_neurons = inner_neurons
+        self.mutation_rate = mutation_rate
         self.weight_range = weight_range
 
         self.source_id_len = source_id_len
@@ -92,8 +93,36 @@ class DNA:
         
         if len(new_genomes) < population:
             print(f"dna crossover resulted a smaller population ({len(new_genomes)}/{population})")
+        
+        self.mutate(new_genomes)
         return new_genomes
 
+    def mutate(self, genomes):
+        """
+        Mutates the population by DNA's mutation_rate. If a mutation happens in a gene, a random bit will be flipped in that gene.
+        """
+
+        # If mutation_rate == 0.01, then interval is 100.
+        mutation_interval = int(1 / self.mutation_rate)
+
+        # Every genome has the possibility of mutation
+        for genome in genomes:
+            # Creates the triggers for all genes in this genome. If trigger == 0, then a mutation happens in that gene.
+            mutation_triggers = np.random.randint(0, mutation_interval, size=self.genome_len)
+
+            # Checks all genes if they got a mutation, and then does the mutation if so happened.
+            for i in range(self.genome_len):
+                if mutation_triggers[i] == 0:
+                    flip_pos = np.random.randint(self.gene_len)
+                    flipped_bit = '1' if genome[i][flip_pos] == '0' else '0'
+                    genome[i] = genome[i][:flip_pos] + flipped_bit + genome[i][flip_pos + 1:]
+
+
+    # Play around functions
+    def identical_genomes(self, genome : list, population : int):
+        """Turns a single genome into a whole population. This can be used as a test, but it's not used in the normal usage."""
+        genomes = [genome for i in range(population)]
+        return genomes
 
 
     def decode_gene(self, gene : str, rerange : bool = False):

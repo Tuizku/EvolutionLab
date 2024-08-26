@@ -15,25 +15,27 @@ class Lab:
         self.gens_genomes = []
         self.last_survived_genomes = None
     
-    def run_generation(self, return_steps_data = False):
-        self.gen += 1
+    def run_generation(self, genomes = None, new_gen : bool = True, return_steps_data : bool = False):
+        if new_gen == True:
+            self.gen += 1
 
-        # Get the genomes for this generation
+        # Get the genomes for this generation (if genomes haven't been imported)
         # [Gen 0] genomes are random
         # [Gen 1+] genomes are crossovered
-        gen_genomes = None
-        if self.gen == 0:
-            gen_genomes = self.dna.random_genomes(self.population)
-        else:
-            gen_genomes = self.dna.crossover(self.last_survived_genomes, self.population)
-        self.gens_genomes.append(gen_genomes)
+        if genomes == None:
+            if self.gen == 0:
+                genomes = self.dna.random_genomes(self.population)
+            else:
+                genomes = self.dna.crossover(self.last_survived_genomes, self.population)
+            self.gens_genomes.append(genomes)
         
         # Create the new generation and run it
-        generation = Generation(gen_genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
+        generation = Generation(genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
         generation.run(return_steps_data)
 
-        # Get survived creatures genomes
-        self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
+        # Get survived creatures genomes and save them to the lab. So the next gen can use these as parens.
+        if new_gen == True:
+            self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
 
         if return_steps_data == True:
             return generation.steps_data

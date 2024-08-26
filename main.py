@@ -4,7 +4,9 @@ from generation import Generation
 import view
 
 
+# NEURON FUNCTIONS
 
+# Input
 def disUP(activation : float, data : dict, generation : Generation):
     return data["y"] / (generation.world_size - 1)
 def disDOWN(activation : float, data : dict, generation : Generation):
@@ -14,6 +16,7 @@ def disRIGHT(activation : float, data : dict, generation : Generation):
 def disLEFT(activation : float, data : dict, generation : Generation):
     return (generation.world_size - 1 - data["x"]) / (generation.world_size - 1)
 
+# Output
 def moveUP(activation : float, data : dict, generation : Generation):
     if activation > 0:
         moved = generation.change_pos(data["x"], data["y"], 0, -1)
@@ -35,18 +38,36 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
         if moved: data["x"] += 1
     return 0
 
+# CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-dna = DNA(input_funcs, output_funcs, 4, 1)
+dna = DNA(input_funcs, output_funcs, 4, 1, 0.05)
 
+# CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
     "name": "x",
     "operator": ">",
     "value": 15
 }]
-lab = Lab(dna, selection_criteria, steps_per_gen=48)
-steps_data = lab.run_generation(True)
-view.view_generation(steps_data)
-lab.run_generations(18)
-steps_data = lab.run_generation(True)
-view.view_generation(steps_data)
+lab = Lab(dna, selection_criteria, steps_per_gen=48, population=128)
+
+
+
+# PROGRAM
+
+genomes = dna.identical_genomes(dna.random_genome(), 128)
+view.view_generation(lab.run_generation(genomes, return_steps_data=True))
+lab.run_generations(50)
+view.view_generation(lab.run_generation(return_steps_data=True))
+
+#lab.run_generations(10)
+#steps_data = lab.run_generation(lab.gens_genomes[0], save_survived_to_lab=False, return_steps_data=True)
+#view.view_generation(steps_data)
+#steps_data = lab.run_generation(lab.gens_genomes[9], save_survived_to_lab=False, return_steps_data=True)
+#view.view_generation(steps_data)
+
+#steps_data = lab.run_generation(True)
+#view.view_generation(steps_data)
+#lab.run_generations(0)
+#steps_data = lab.run_generation(True)
+#view.view_generation(steps_data)
