@@ -171,7 +171,74 @@ class DNA:
         
         return neurons_inputs, neurons_output, neurons_function
     
-    def genome_to_conns(self, genome : list):
+    def get_needed_neurons(self, genome : list):
+        """
+        Gets only the needed neurons for the creature.
+
+        Returns
+        -------
+            neurons_inputs (list): Every neuron's current inputs.
+            neurons_output (list): Every neuron's current output.
+            neurons_function (list): Every neuron's unique function. Inner neurons have None.
+            include_dictionary (dict): Boolean numpy lists. Which neurons are used? ("include_inputs", "include_outputs", "include_inners")
+        """
+
+        # Include neurons
+        # Creates lists of bools, True meaning that it will be added to the neuron list.
+        include_inputs = np.full(len(self.inputs), False, dtype=bool)
+        include_outputs = np.full(len(self.outputs), False, dtype=bool)
+        include_inners = np.full(self.inner_neurons, False, dtype=bool)
+
+        # Includes neurons in the result.
+        def include_neuron(is_source : bool, type : int, id : int):
+            nonlocal include_inputs, include_outputs, include_inners
+            if type == 1:
+                include_inners[id] = True
+            elif type == 0:
+                if is_source == True:
+                    include_inputs[id] = True
+                else:
+                    include_outputs[id] = True
+
+
+        # Include all neurons that are referenced in genome
+        for i in range(len(genome)):
+            decoded_gene = self.decode_gene(genome[i], True)
+            include_neuron(True, decoded_gene["source_type"], decoded_gene["source_id"])
+            include_neuron(False, decoded_gene["sink_type"], decoded_gene["sink_id"])
+        
+
+        # Result lists
+        neurons_inputs = []
+        neurons_output = []
+        neurons_function = []
+
+        # Add the included neurons in their correct order to the result lists
+        all_includes = [include_inputs, include_inners, include_outputs]
+        all_funcs = [self.inputs, np.full(len(include_inners), None), self.outputs]
+        for i in range(3):
+            for j in range(len(all_includes[i])):
+                if all_includes[i][j] == True:
+                    neurons_inputs.append([])
+                    neurons_output.append(0)
+                    neurons_function.append(all_funcs[i][j])
+
+
+        # Return 3 lists and a dict
+        return neurons_inputs, neurons_output, neurons_function, {
+            "include_inputs": include_inputs,
+            "include_outputs": include_outputs,
+            "include_inners": include_inners
+        }
+
+    def genome_to_conns(self, genome : list, include_dict : dict = None):
+        def set_tweaks(length, include_list, tweaks):
+            tweak = 0
+            for i in range(length):
+                if include_list[i] == False: tweak += 1
+                tweaks[i] = tweak
+            return tweak
+        
         # Conns variables
         conns_source_id = []
         conns_sink_id = []
@@ -180,12 +247,42 @@ class DNA:
         # Lengths
         ins = len(self.inputs)
         inners = self.inner_neurons
+        outs = len(self.outputs)
+        actual_ins = ins
+        actual_inners = inners
+
+        # Create the tweak lists. These values will be summed with source/sink ids.
+        # Their point is to transform normal ids to ids that reference actual neurons included in the creature.
+        input_tweaks = np.zeros(ins, dtype=int)
+        inner_tweaks = np.zeros(inners, dtype=int)
+        output_tweaks = np.zeros(outs, dtype=int)
+        if include_dict != None:
+            # Set the tweaks
+            actual_ins -= set_tweaks(ins, include_dict["include_inputs"], input_tweaks)
+            actual_inners -= set_tweaks(inners, include_dict["include_inners"], inner_tweaks)
+            set_tweaks(outs, include_dict["include_outputs"], output_tweaks)
+        
 
         # Loop through all genes and turn them into conns
         for gene in genome:
             decoded_gene = self.decode_gene(gene, True)
-            source_id = decoded_gene["source_id"] + (decoded_gene["source_type"] * ins)
-            sink_id = ins + (inners * (1 - decoded_gene["sink_type"])) + decoded_gene["sink_id"]
+            source_id = decoded_gene["source_id"]
+            sink_id = decoded_gene["sink_id"]
+
+            # Tweak the source_id and sink_id
+            if decoded_gene["source_type"] == 0:
+                source_id -= input_tweaks[source_id]
+            else:
+                source_id -= inner_tweaks[source_id]
+
+            if decoded_gene["sink_type"] == 0:
+                sink_id -= output_tweaks[sink_id]
+            else:
+                sink_id -= inner_tweaks[sink_id]
+
+            # Turn source- and sink id's into combined ids
+            source_id += (decoded_gene["source_type"] * actual_ins)
+            sink_id += actual_ins + (actual_inners * (1 - decoded_gene["sink_type"]))
             
             conns_source_id.append(source_id)
             conns_sink_id.append(sink_id)

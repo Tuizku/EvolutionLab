@@ -13,8 +13,9 @@ class Creature:
         generation.map[data["x"]][data["y"]] = 1
 
         # Setup neuralnet
-        self.neurons_inputs, self.neurons_output, self.neurons_function = self.dna.get_all_neurons()
-        self.conns_source_id, self.conns_sink_id, self.conns_weight = self.dna.genome_to_conns(genome)
+        self.neurons_inputs, self.neurons_output, self.neurons_function, include_dict = self.dna.get_needed_neurons(genome)
+        self.conns_source_id, self.conns_sink_id, self.conns_weight = self.dna.genome_to_conns(genome, include_dict)
+        
 
     def update(self):
         # Clear inputs
@@ -23,16 +24,14 @@ class Creature:
 
         # Update inputs
         for i in range(len(self.conns_source_id)):
-            source_id = self.conns_source_id[i]
-            sink_id = self.conns_sink_id[i]
-            weight = self.conns_weight[i]
-
             # Multiply source's output with conn's weight, and add this to the sink's inputs
-            activation = weight * self.neurons_output[source_id]
-            self.neurons_inputs[sink_id].append(activation)
+            activation = self.conns_weight[i] * self.neurons_output[self.conns_source_id[i]]
+            self.neurons_inputs[self.conns_sink_id[i]].append(activation)
 
 
         # Update outputs
+        #activations = np.tanh(np.sum(self.neurons_inputs, axis=1))   # using this could help performance
+
         for i in range(len(self.neurons_inputs)):
             inputs = self.neurons_inputs[i]
             func = self.neurons_function[i]

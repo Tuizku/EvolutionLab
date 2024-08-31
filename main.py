@@ -60,10 +60,11 @@ lab = Lab(dna, selection_criteria, steps_per_gen=64, population=128, world_size=
 
 # PROGRAM
 
-lab.run_generations(200)
+lab.run_generations(100)
 steps_data = lab.run_generation(return_steps_data=True)
 view.view_generation(steps_data)
 view.view_evolution_chart(lab.gens_data, lab.population, dna.genome_len)
+
 #print(lab.gens_data[19])
 #print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
 #lab.run_generation(dna.identical_genomes(dna.random_genome(), 128))
