@@ -20,7 +20,7 @@ class Creature:
     def update(self):
         # Clear inputs
         for i in range(len(self.neurons_inputs)):
-            self.neurons_inputs[i] = []
+            self.neurons_inputs[i].clear()
 
         # Update inputs
         for i in range(len(self.conns_source_id)):
@@ -30,20 +30,17 @@ class Creature:
 
 
         # Update outputs
-        #activations = np.tanh(np.sum(self.neurons_inputs, axis=1))   # using this could help performance
+
+        # Calculate activation from inputs. (inputs are already weighed)
+        activations = np.tanh([np.sum(inputs) for inputs in self.neurons_inputs])
 
         for i in range(len(self.neurons_inputs)):
-            inputs = self.neurons_inputs[i]
             func = self.neurons_function[i]
-            
-            # Calculate activation from inputs. (inputs are already weighed)
-            z = np.sum(inputs)
-            activation = np.tanh(z)
 
             # Update the output (inner neuron logic)
-            if func == None: # 
-                self.neurons_output[i] = activation
+            if func == None:
+                self.neurons_output[i] = activations[i]
 
             # (custom neuron logic)
             else: 
-                self.neurons_output[i] = func(activation, self.data, self.generation)
+                self.neurons_output[i] = func(activations[i], self.data, self.generation)

@@ -231,6 +231,8 @@ class DNA:
             "include_inners": include_inners
         }
 
+    #def optimizegenome smth
+
     def genome_to_conns(self, genome : list, include_dict : dict = None):
         def set_tweaks(length, include_list, tweaks):
             tweak = 0

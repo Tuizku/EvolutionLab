@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import time
 from dna import DNA
 from creature import Creature
 
@@ -16,7 +17,9 @@ class Generation:
         self.steps_data = []
         
     
-    def run(self, save_steps : bool = False):
+    def run(self, save_steps : bool = False, debug : bool = False):
+        start_time = time.time()
+
         # Create the creatures
         self.creatures = []
         for genome in self.genomes:
@@ -27,6 +30,9 @@ class Generation:
             }
             self.creatures.append(Creature(data, genome, self.dna, self))
         
+        setup_time = time.time() - start_time
+        start_time = time.time()
+
         # Run through the steps
         for step in range(self.steps_per_gen):
             for creature in self.creatures:
@@ -34,6 +40,10 @@ class Generation:
             
             if save_steps == True:
                 self.steps_data.append({"map": copy.deepcopy(self.map)})
+        
+        steps_time = time.time() - start_time
+        if debug == True:
+            print(f"GEN DEBUG -> setup_time = {round(setup_time, 6)}, steps_time = {round(steps_time, 6)}")
             
     def get_selection_genomes(self, selection_criteria : list):
         result_genomes = []

@@ -15,7 +15,7 @@ class Lab:
         self.gens_data = []
         self.last_survived_genomes = None
     
-    def run_generation(self, genomes = None, new_gen : bool = True, return_steps_data : bool = False):
+    def run_generation(self, genomes = None, new_gen = True, return_steps_data = False, debug = False):
         if new_gen == True:
             self.gen += 1
 
@@ -36,7 +36,7 @@ class Lab:
         
         # Create the new generation and run it
         generation = Generation(genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
-        generation.run(return_steps_data)
+        generation.run(return_steps_data, debug)
 
         # Get survived creatures genomes and save them to the lab. So the next gen can use these as parens.
         if new_gen == True:
