@@ -41,7 +41,7 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-dna = DNA(input_funcs, output_funcs, 4, 1, 0.05)
+dna = DNA(input_funcs, output_funcs, 10, 4, 0.05)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
@@ -60,10 +60,10 @@ lab = Lab(dna, selection_criteria, steps_per_gen=64, population=128, world_size=
 
 # PROGRAM
 
-#lab.run_generations(100)
-#steps_data = lab.run_generation(return_steps_data=True)
-#view.view_generation(steps_data)
-#view.view_evolution_chart(lab.gens_data, lab.population, dna.genome_len)
+# lab.run_generations(100)
+# steps_data = lab.run_generation(return_steps_data=True)
+# view.view_generation(steps_data)
+# view.view_evolution_chart(lab.gens_data, lab.population, dna.genome_len)
 
 lab.run_generation(debug=True)
 
@@ -71,26 +71,26 @@ lab.run_generation(debug=True)
 
 
 
-#print(lab.gens_data[19])
-#print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
-#lab.run_generation(dna.identical_genomes(dna.random_genome(), 128))
-#lab.run_generation()
-#print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
+# print(lab.gens_data[19])
+# print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
+# lab.run_generation(dna.identical_genomes(dna.random_genome(), 128))
+# lab.run_generation()
+# print(dna.average_hamming_distance(lab.gens_data[19]["genomes"]))
 
 
-#genomes = dna.identical_genomes(dna.random_genome(), 128)
-#view.view_generation(lab.run_generation(genomes, return_steps_data=True))
-#lab.run_generations(50)
-#view.view_generation(lab.run_generation(return_steps_data=True))
+# genomes = dna.identical_genomes(dna.random_genome(), 128)
+# view.view_generation(lab.run_generation(genomes, return_steps_data=True))
+# lab.run_generations(50)
+# view.view_generation(lab.run_generation(return_steps_data=True))
 
-#lab.run_generations(10)
-#steps_data = lab.run_generation(lab.gens_genomes[0], save_survived_to_lab=False, return_steps_data=True)
-#view.view_generation(steps_data)
-#steps_data = lab.run_generation(lab.gens_genomes[9], save_survived_to_lab=False, return_steps_data=True)
-#view.view_generation(steps_data)
+# lab.run_generations(10)
+# steps_data = lab.run_generation(lab.gens_genomes[0], save_survived_to_lab=False, return_steps_data=True)
+# view.view_generation(steps_data)
+# steps_data = lab.run_generation(lab.gens_genomes[9], save_survived_to_lab=False, return_steps_data=True)
+# view.view_generation(steps_data)
 
-#steps_data = lab.run_generation(True)
-#view.view_generation(steps_data)
-#lab.run_generations(0)
-#steps_data = lab.run_generation(True)
-#view.view_generation(steps_data)
+# steps_data = lab.run_generation(True)
+# view.view_generation(steps_data)
+# lab.run_generations(0)
+# steps_data = lab.run_generation(True)
+# view.view_generation(steps_data)

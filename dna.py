@@ -231,7 +231,72 @@ class DNA:
             "include_inners": include_inners
         }
 
-    #def optimizegenome smth
+    def get_optimized_genome(self, genome : list):
+        """
+        Cuts out inner neurons that don't have a valid source and sink. The genes that use these useless inner neurons, are cut out.
+        - A valid source is an input neuron or a different inner neuron.
+        - A valid sink is an output neuron or a different inner neuron.
+
+        Returns
+        -------
+            optimized_genome (list): Same data type as normal genome, but with possibly fewer genes.
+        """
+        
+        # 2 requirements for each inner neuron.
+        inner_neurons_requirements = np.full((self.inner_neurons, 2), fill_value=False, dtype=bool)
+        
+        # Check inner neuron requirements from every gene.
+        for gene in genome:
+            # Decode gene
+            decoded_gene = self.decode_gene(gene, True)
+            source_type = decoded_gene["source_type"]
+            source_id = decoded_gene["source_id"]
+            sink_type = decoded_gene["sink_type"]
+            sink_id = decoded_gene["sink_id"]
+
+            # Case -> Sink = Inner neuron
+            if sink_type == 1:
+                if source_type == 0 or source_id != sink_id:
+                    inner_neurons_requirements[sink_id][0] = True
+            
+            # Case -> Source = Inner neuron
+            if source_type == 1:
+                if sink_type == 0 or sink_id != source_id:
+                    inner_neurons_requirements[source_id][1] = True
+        
+        # Turn requirements into booleans, which inner neurons will be used?
+        # Index in list = which inner neuron?
+        # Value is True if both requirements are True.
+        inner_neurons_included = []
+        for requirements in inner_neurons_requirements:
+            if requirements[0] == True and requirements[1] == True:
+                inner_neurons_included.append(True)
+            else: inner_neurons_included.append(False)
+        
+        # Adds only the needed genes to the result
+        optimized_genome = []
+        for gene in genome:
+            # Decode gene
+            decoded_gene = self.decode_gene(gene, True)
+            source_type = decoded_gene["source_type"]
+            source_id = decoded_gene["source_id"]
+            sink_type = decoded_gene["sink_type"]
+            sink_id = decoded_gene["sink_id"]
+
+            # Do not include gene if a source or a sink is an inner neuron that isn't required in the brain.
+            include_gene = True
+            if source_type == 1 and inner_neurons_included[source_id] == False:
+                include_gene = False
+            elif sink_type == 1 and inner_neurons_included[sink_id] == False:
+                include_gene = False
+            
+            # Add gene if included
+            if include_gene == True: optimized_genome.append(gene)
+        
+        return optimized_genome
+            
+
+
 
     def genome_to_conns(self, genome : list, include_dict : dict = None):
         def set_tweaks(length, include_list, tweaks):
@@ -298,6 +363,7 @@ class DNA:
         Calculates the average hamming distance between the genomes.
         This can be used to see how different dna the creatures have.
         """
+        start_time = time.time()
 
         genomes_len = len(genomes)
         diverse_bits = 0
@@ -314,5 +380,5 @@ class DNA:
         
         all_bits = self.gene_len * self.genome_len * genomes_len
         result = diverse_bits / (all_bits * 0.5)
-
+        print(f"AVERAGE HAMMING DISTANCE DEBUG -> time = {round(time.time() - start_time, 6)}")
         return result
