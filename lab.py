@@ -1,20 +1,36 @@
+import os
+import json
 import time
 from dna import DNA
 from generation import Generation
 
 class Lab:
-    def __init__(self, dna : DNA, selection_criteria : list, world_size : int = 32, population : int = 128, steps_per_gen : int = 128):
-        # Setup Lab's variables
+    def __init__(self, dna : DNA, selection_criteria : list, 
+                 world_size : int = 32, population : int = 128, steps_per_gen : int = 128,
+                 gens_per_save : int = 25,
+                 name : str = "default", 
+                 path : str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saves")):
+        
+        # Setup Lab's variables.
         self.dna : DNA = dna
         self.selection_criteria : list = selection_criteria
         self.world_size : int = world_size
         self.population : int = population
         self.steps_per_gen : int = steps_per_gen
+        self.gens_per_save : int = gens_per_save
 
+        # Setup Lab Generations variables.
         self.gen : int = -1
-        self.gens_data = []
         self.last_survived_genomes = None
+        self.unsaved_gens_data = []
+
+        # Setup path and directories for the lab "project".
+        self.path = os.path.join(path, name)
+        os.makedirs(self.path, exist_ok=True)
+
+        self.try_load_lab()
     
+
     def run_generation(self, genomes = None, new_gen = True, return_steps_data = False, debug = False):
         if new_gen == True:
             self.gen += 1
@@ -44,8 +60,10 @@ class Lab:
             gen_data["genomes"] = genomes
             gen_data["survived"] = len(self.last_survived_genomes)
             gen_data["diversity"] = self.dna.average_hamming_distance(genomes)
-            
-            self.gens_data.append(gen_data)
+            self.unsaved_gens_data.append(gen_data)
+
+            if len(self.unsaved_gens_data) >= self.gens_per_save:
+                self.save_gens()
 
         if return_steps_data == True:
             return generation.steps_data
@@ -56,3 +74,48 @@ class Lab:
         for i in range(count):
             self.run_generation()
             print(f"[{int(time.time() - start_time)}s / gen {self.gen}] survived = {len(self.last_survived_genomes)}")
+        
+        self.save_gens()
+    
+
+
+    def try_load_lab(self):
+        gens_path = os.path.join(self.path, "gens.json")
+
+        if os.path.isfile(gens_path):
+            gens_data = self.load_gens()
+            self.gen = len(gens_data) - 1
+            self.last_survived_genomes = gens_data[-1]["genomes"]
+
+    def save_gens(self):
+        filepath = os.path.join(self.path, "gens.json")
+
+        # Read gens from file.
+        old_gens : list = []
+        if os.path.isfile(filepath):
+            with open(filepath, "r") as file:
+                file_content = file.read()
+                old_gens = json.loads(file_content)
+        
+        # Add new gens to old gens and save it to file.
+        new_gens = old_gens + self.unsaved_gens_data
+        with open(filepath, "w") as file:
+            content = json.dumps(new_gens)
+            file.write(content)
+        
+        # Clear gens_data
+        self.unsaved_gens_data = []
+    
+    def load_gens(self):
+        # Save if there are gens not saved
+        if len(self.unsaved_gens_data) > 0:
+            self.save_gens()
+        
+        # Load the file into an object and return it.
+        result = None
+        filepath = os.path.join(self.path, "gens.json")
+        with open(filepath, "r") as file:
+            content = file.read()
+            result = json.loads(content)
+        
+        return result

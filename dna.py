@@ -380,5 +380,5 @@ class DNA:
         
         all_bits = self.gene_len * self.genome_len * genomes_len
         result = diverse_bits / (all_bits * 0.5)
-        print(f"AVERAGE HAMMING DISTANCE DEBUG -> time = {round(time.time() - start_time, 6)}")
+        #print(f"AVERAGE HAMMING DISTANCE DEBUG -> time = {round(time.time() - start_time, 6)}")
         return result
