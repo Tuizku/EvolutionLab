@@ -23,7 +23,7 @@ def view_generation(steps_data):
     root.update()
 
     world_size = len(steps_data[0]["map"])
-    map_size = 1000
+    map_size = 700
     cell_size = map_size / world_size
     root_width = root.winfo_width()
     root_height = root.winfo_height()

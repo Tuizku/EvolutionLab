@@ -41,7 +41,7 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-dna = DNA(input_funcs, output_funcs, 4, 1, 0.01)
+dna = DNA(input_funcs, output_funcs, 6, 2, 0.01)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
@@ -54,20 +54,20 @@ selection_criteria = [{
     "operator": ">",
     "value": 20
 }]
-lab = Lab(dna, selection_criteria, steps_per_gen=64, population=128, world_size=32)
+lab = Lab(dna, selection_criteria, name="school_test", steps_per_gen=64, population=128, world_size=32)
 
 
 
 # PROGRAM
 
-lab.run_generations(199)
-steps_data = lab.run_generation(return_steps_data=True)
-view.view_generation(steps_data)
-view.view_evolution_chart(lab.load_gens(), lab.population, dna.genome_len)
+# lab.run_generations(4999)
+# steps_data = lab.run_generation(return_steps_data=True)
+# view.view_generation(steps_data)
+# view.view_evolution_chart(lab.load_gens(), lab.population, dna.genome_len)
 
 #lab.run_generation(debug=True)
 
-# gens_data = lab.load_gens()
-# steps_data = lab.run_generation(gens_data[-1]["genomes"], False, True)
-# view.view_generation(steps_data)
-# view.view_evolution_chart(gens_data, lab.population, dna.genome_len)
+gens_data = lab.load_gens()
+steps_data = lab.run_generation(gens_data[-1]["genomes"], False, True)
+view.view_generation(steps_data)
+view.view_evolution_chart(gens_data, lab.population, dna.genome_len)
