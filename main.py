@@ -60,14 +60,14 @@ lab = Lab(dna, selection_criteria, name="school_test", steps_per_gen=64, populat
 
 # PROGRAM
 
-# lab.run_generations(4999)
-# steps_data = lab.run_generation(return_steps_data=True)
-# view.view_generation(steps_data)
-# view.view_evolution_chart(lab.load_gens(), lab.population, dna.genome_len)
+lab.run_generations(9)
+steps_data = lab.run_generation(return_steps_data=True)
+view.view_generation(steps_data)
+view.view_evolution_chart(lab.load_gens(), lab.population, dna.genome_len)
 
 #lab.run_generation(debug=True)
 
-gens_data = lab.load_gens()
-steps_data = lab.run_generation(gens_data[-1]["genomes"], False, True)
-view.view_generation(steps_data)
-view.view_evolution_chart(gens_data, lab.population, dna.genome_len)
+# gens_data = lab.load_gens()
+# steps_data = lab.run_generation(gens_data[-1]["genomes"], False, True)
+# view.view_generation(steps_data)
+# view.view_evolution_chart(gens_data, lab.population, dna.genome_len)

@@ -7,7 +7,7 @@ from generation import Generation
 class Lab:
     def __init__(self, dna : DNA, selection_criteria : list, 
                  world_size : int = 32, population : int = 128, steps_per_gen : int = 128,
-                 gens_per_save : int = 25,
+                 gens_per_save : int = 100,
                  name : str = "default", 
                  path : str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saves")):
         
@@ -88,24 +88,30 @@ class Lab:
             self.last_survived_genomes = gens_data[-1]["genomes"]
 
     def save_gens(self):
+        start_time = time.time()
         filepath = os.path.join(self.path, "gens.json")
 
-        # Read gens from file.
-        old_gens : list = []
-        if os.path.isfile(filepath):
-            with open(filepath, "r") as file:
-                file_content = file.read()
-                old_gens = json.loads(file_content)
+        # Creates the file if it doesn't exist.
+        if not os.path.isfile(filepath):
+            open(filepath, "x")
         
-        # Add new gens to old gens and save it to file.
-        new_gens = old_gens + self.unsaved_gens_data
-        with open(filepath, "w") as file:
-            content = json.dumps(new_gens)
-            file.write(content)
+        # Open the file for reading + writing
+        with open(filepath, "r+") as file:
+            # Load old data if there is.
+            gens = [] 
+            content = file.read()
+            if content != "":
+                gens = json.loads(content)
+
+            # Extend old data with new, and write it to the beginning of the file.
+            gens.extend(self.unsaved_gens_data)
+            file.seek(0)
+            file.write(json.dumps(gens))
+            file.truncate() # Clears possible old data, if write length was smaller than the original file length.
         
-        # Clear gens_data
         self.unsaved_gens_data = []
-    
+        print(f"save_time = {time.time() - start_time}")
+
     def load_gens(self):
         # Save if there are gens not saved
         if len(self.unsaved_gens_data) > 0:
