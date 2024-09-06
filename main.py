@@ -41,7 +41,7 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-dna = DNA(input_funcs, output_funcs, 6, 2, 0.01)
+dna = DNA(input_funcs, output_funcs, 16, 8, 0.01)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
@@ -54,7 +54,7 @@ selection_criteria = [{
     "operator": ">",
     "value": 20
 }]
-lab = Lab(dna, selection_criteria, name="school_test", steps_per_gen=64, population=128, world_size=32)
+lab = Lab(dna, selection_criteria, name="test1", steps_per_gen=64, population=512, world_size=64)
 
 
 

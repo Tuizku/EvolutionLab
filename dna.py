@@ -55,6 +55,7 @@ class DNA:
         
         Returns all new genomes.
         """
+
         survived = len(genomes)
         new_genomes = []
 
@@ -95,7 +96,7 @@ class DNA:
         
         if len(new_genomes) < population:
             print(f"dna crossover resulted a smaller population ({len(new_genomes)}/{population})")
-        
+
         self.mutate(new_genomes)
         return new_genomes
 
@@ -103,7 +104,7 @@ class DNA:
         """
         Mutates the population by DNA's mutation_rate. If a mutation happens in a gene, a random bit will be flipped in that gene.
         """
-
+        
         # If mutation_rate == 0.01, then interval is 100.
         mutation_interval = int(1 / self.mutation_rate)
 
