@@ -35,7 +35,7 @@ def bytearray_crossover(genomes : bytearray, survived, population, genome_len, g
     result_genomes = bytearray()
 
     # Shuffle the genomes
-    separated_genomes = [genomes[i:i + (genome_len * gene_bytes)] for i in range(0, len(genomes), (genome_len * gene_bytes))]
+    separated_genomes = [genomes[i : i + (genome_len * gene_bytes)] for i in range(0, len(genomes), (genome_len * gene_bytes))]
     random.shuffle(separated_genomes)
 
     # If there is a single in the population, send it to the result, and pop it from the survivors.
@@ -99,7 +99,25 @@ def bytearray_mutate(genomes: bytearray, gene_bytes, mutation_rate):
             
     print(time.time() - start_time)
 
+def bytearray_decode_genomes(genomes : bytearray, rerange : bool = False):
+    source_id_len = 7
+    sink_id_len = 7
+    weight_len = 16
+    
+    # Separates the genomes from the large bytearray.
+    genome_bytes_count = genome_len * gene_bytes
+    separated_genomes = [genomes[i : i + genome_bytes_count] for i in range(0, len(genomes), genome_bytes_count)]
 
+    result = []
+    for genome in separated_genomes:
+        for gene_start_i in range(0, genome_bytes_count, gene_bytes):
+            gene = int.from_bytes(genome[gene_start_i : gene_start_i + gene_bytes], byteorder="big")
+            
+            #decoded_gene = {
+            #    "source_type": gene >> ()
+            #}
+
+    
 
 
 
@@ -110,7 +128,7 @@ genome_len = 16
 gene_bytes = 3
 
 
-test_id = 1
+test_id = 2
 if test_id == 0:
     genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
     crossovered_genomes = bytearray_crossover(genomes, survived_population, population, genome_len, gene_bytes)
@@ -118,6 +136,9 @@ elif test_id == 1:
     for i in range(9):
         genomes = get_random_bytearray(gene_bytes * genome_len * population)
         mutated_genomes = bytearray_mutate(genomes, gene_bytes, 0.01)
+elif test_id == 2:
+    genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
+    bytearray_decode_genomes(genomes, True)
 
 
 
