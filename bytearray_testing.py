@@ -2,6 +2,9 @@ import numpy as np
 import random
 import time
 
+from dna import DNA
+test_dna = DNA([0], [0], 16, 1, 0)
+
 
 def get_random_bytearray(length):
     random_bytes = np.random.randint(0, 255, size=length, dtype=np.uint8)
@@ -99,23 +102,43 @@ def bytearray_mutate(genomes: bytearray, gene_bytes, mutation_rate):
             
     print(time.time() - start_time)
 
-def bytearray_decode_genomes(genomes : bytearray, rerange : bool = False):
-    source_id_len = 7
-    sink_id_len = 7
-    weight_len = 16
+def bytearray_decode_genomes(genomes : bytearray, genome_len, gene_bytes, gene_bits, rerange : bool = False):
+    
+    # !!! These will be replaced in the new dna class !!!
+    source_id_len = 5
+    sink_id_len = 5
+    weight_len = 12
+    
     
     # Separates the genomes from the large bytearray.
     genome_bytes_count = genome_len * gene_bytes
     separated_genomes = [genomes[i : i + genome_bytes_count] for i in range(0, len(genomes), genome_bytes_count)]
 
+    # Decode all genes, combine them into genomes and dump the genomes into the result.
     result = []
     for genome in separated_genomes:
+        decoded_genome = []
+
+        # Loops through every starting point of a gene in genome.
         for gene_start_i in range(0, genome_bytes_count, gene_bytes):
+            # Combine gene's bytes and turn it into an int.
             gene = int.from_bytes(genome[gene_start_i : gene_start_i + gene_bytes], byteorder="big")
             
-            #decoded_gene = {
-            #    "source_type": gene >> ()
-            #}
+            # Decode with bit manipulation. This is not reranged, this is raw data.
+            decoded_gene = {
+                "source_type": gene >> (gene_bits - 1) & 1,
+                "source_id": gene >> (gene_bits - 1 - source_id_len) & ((1 << source_id_len) - 1),
+                "sink_type": gene >> (gene_bits - 1 - source_id_len - 1) & 1,
+                "sink_id": gene >> (gene_bits - 1 - source_id_len - 1 - sink_id_len) & ((1 << sink_id_len) - 1),
+                "weight": gene & ((1 << weight_len) - 1)
+            }
+            decoded_genome.append(decoded_gene)
+        
+        result.append(decoded_genome)
+    
+    return result
+
+
 
     
 
@@ -126,6 +149,7 @@ population = 512
 survived_population = 256
 genome_len = 16
 gene_bytes = 3
+gene_bits = gene_bytes * 8 # not customizable straight from this
 
 
 test_id = 2
@@ -138,7 +162,8 @@ elif test_id == 1:
         mutated_genomes = bytearray_mutate(genomes, gene_bytes, 0.01)
 elif test_id == 2:
     genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
-    bytearray_decode_genomes(genomes, True)
+    bytearray_decode_genomes(genomes, genome_len, gene_bytes, gene_bits, True)
+    print("finished")
 
 
 
