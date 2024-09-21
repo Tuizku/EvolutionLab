@@ -132,10 +132,30 @@ def bytearray_decode_genomes(genomes : bytearray, genome_len, gene_bytes, gene_b
                 "sink_id": gene >> (gene_bits - 1 - source_id_len - 1 - sink_id_len) & ((1 << sink_id_len) - 1),
                 "weight": gene & ((1 << weight_len) - 1)
             }
+
+            # if rerange == True:
+            #   rerange the gene here
+
             decoded_genome.append(decoded_gene)
         
         result.append(decoded_genome)
     
+    return result
+
+def bytearray_avg_hamming_distance(genomes : bytearray, population, genome_len, gene_bits):
+    start_time = time.time()
+
+    diverse_bits = 0
+    int_genomes = [int.from_bytes(genomes[i * genome_len : i * genome_len + genome_len]) for i in range(population)]
+
+    for i in range(0, population - 1):
+        for j in range(1, population):
+            diverse_bits += (int_genomes[i] ^ int_genomes[j]).bit_count()
+    
+    all_bits = gene_bits * genome_len * population
+    result = diverse_bits / (all_bits * 0.5)
+
+    print(f"time: {round(time.time() - start_time, 3)}s")
     return result
 
 
@@ -145,14 +165,14 @@ def bytearray_decode_genomes(genomes : bytearray, genome_len, gene_bytes, gene_b
 
 
 # TESTING
-population = 512
+population = 128
 survived_population = 256
-genome_len = 16
+genome_len = 4
 gene_bytes = 3
 gene_bits = gene_bytes * 8 # not customizable straight from this
 
 
-test_id = 2
+test_id = 3
 if test_id == 0:
     genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
     crossovered_genomes = bytearray_crossover(genomes, survived_population, population, genome_len, gene_bytes)
@@ -164,6 +184,10 @@ elif test_id == 2:
     genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
     bytearray_decode_genomes(genomes, genome_len, gene_bytes, gene_bits, True)
     print("finished")
+elif test_id == 3:
+    genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
+    hamming_dis = bytearray_avg_hamming_distance(genomes, population, genome_len, gene_bits)
+    
 
 
 
