@@ -103,7 +103,8 @@ def bytearray_mutate(genomes: bytearray, gene_bytes, mutation_rate):
     print(time.time() - start_time)
 
 def bytearray_decode_genomes(genomes : bytearray, genome_len, gene_bytes, gene_bits, rerange : bool = False):
-    
+    start_time = time.time()
+
     # !!! These will be replaced in the new dna class !!!
     source_id_len = 5
     sink_id_len = 5
@@ -139,7 +140,7 @@ def bytearray_decode_genomes(genomes : bytearray, genome_len, gene_bytes, gene_b
             decoded_genome.append(decoded_gene)
         
         result.append(decoded_genome)
-    
+    print(f"time: {round(time.time() - start_time, 3)}")
     return result
 
 def bytearray_avg_hamming_distance(genomes : bytearray, population, genome_len, gene_bits):
@@ -172,7 +173,7 @@ gene_bytes = 3
 gene_bits = gene_bytes * 8 # not customizable straight from this
 
 
-test_id = 3
+test_id = 2
 if test_id == 0:
     genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
     crossovered_genomes = bytearray_crossover(genomes, survived_population, population, genome_len, gene_bytes)
@@ -181,7 +182,7 @@ elif test_id == 1:
         genomes = get_random_bytearray(gene_bytes * genome_len * population)
         mutated_genomes = bytearray_mutate(genomes, gene_bytes, 0.01)
 elif test_id == 2:
-    genomes = get_random_bytearray(gene_bytes * genome_len * survived_population)
+    genomes = get_random_bytearray(gene_bytes * genome_len * population)
     bytearray_decode_genomes(genomes, genome_len, gene_bytes, gene_bits, True)
     print("finished")
 elif test_id == 3:

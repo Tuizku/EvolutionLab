@@ -1,5 +1,6 @@
 from lab import Lab
 from dna import DNA
+from bytedna import ByteDNA
 from generation import Generation
 import view
 
