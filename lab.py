@@ -22,7 +22,8 @@ class Lab:
         # Setup Lab Generations variables.
         self.gen : int = -1
         self.last_survived_genomes = None
-        self.unsaved_gens_data = []
+        self.unsaved_gens_genomes = bytearray()
+        self.unsaved_gens_stats = []
 
         # Setup path and directories for the lab "project".
         self.path = os.path.join(path, name)
@@ -35,8 +36,7 @@ class Lab:
         if new_gen == True:
             self.gen += 1
 
-        gen_data = {
-            "genomes": None,
+        gen_stats = {
             "survived": 0,
             "diversity": 0
         }
@@ -57,12 +57,13 @@ class Lab:
         # Get survived creatures genomes and save them to the lab. So the next gen can use these as parens.
         if new_gen == True:
             self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
-            gen_data["genomes"] = genomes
-            gen_data["survived"] = len(self.bytedna.get_separated_genome(self.last_survived_genomes))
-            gen_data["diversity"] = self.bytedna.average_hamming_distance(genomes, self.population)
-            self.unsaved_gens_data.append(gen_data)
+            
+            gen_stats["survived"] = len(self.bytedna.get_separated_genome(self.last_survived_genomes))
+            gen_stats["diversity"] = self.bytedna.average_hamming_distance(genomes, self.population)
+            self.unsaved_gens_stats.append(gen_stats)
+            self.unsaved_gens_genomes.extend(genomes)
 
-            if len(self.unsaved_gens_data) >= self.gens_per_save:
+            if len(self.unsaved_gens_stats) >= self.gens_per_save:
                 self.save_gens()
 
         if return_steps_data == True:
@@ -80,52 +81,62 @@ class Lab:
 
 
     def try_load_lab(self):
-        gens_path = os.path.join(self.path, "gens.json")
+        gens_filepath = os.path.join(self.path, "gens.bin")
+        stats_filepath = os.path.join(self.path, "stats.json")
 
-        if os.path.isfile(gens_path):
-            gens_data = self.load_gens()
-            self.gen = len(gens_data) - 1
-            self.last_survived_genomes = gens_data[-1]["genomes"]
+        if os.path.isfile(gens_filepath) and os.path.isfile(stats_filepath):
+            gens, stats = self.load_gens()
+            self.gen = len(stats) - 1
+            self.last_survived_genomes = gens[-(self.bytedna.gene_bytes * self.bytedna.genome_len * self.population):]
 
     def save_gens(self):
         start_time = time.time()
-        filepath = os.path.join(self.path, "gens.json")
+        gens_filepath = os.path.join(self.path, "gens.bin")
+        stats_filepath = os.path.join(self.path, "stats.json")
 
-        # Creates the file if it doesn't exist.
-        if not os.path.isfile(filepath):
-            open(filepath, "x")
-
-        # TEMPORARY GENS FIX
-        #for i in range(len(self.unsaved_gens_data)):
-            #self.unsaved_gens_data["genomes"] = self.unsaved_gens_data["genomes"].decode("utf-8")
+        # Creates the files if they do not exist.
+        if not os.path.isfile(gens_filepath):
+            open(gens_filepath, "xb")
+        if not os.path.isfile(stats_filepath):
+            open(stats_filepath, "x")
         
-        # Open the file for reading + writing
-        with open(filepath, "r+") as file:
+        # Open the gens file for appending binary
+        with open(gens_filepath, "ab") as file:
+            file.write(self.unsaved_gens_genomes)
+
+        # Open the stats file for reading + writing
+        with open(stats_filepath, "r+") as file:
             # Load old data if there is.
-            gens = [] 
+            gens_stats = [] 
             content = file.read()
             if content != "":
-                gens = json.loads(content)
+                gens_stats = json.loads(content)
 
             # Extend old data with new, and write it to the beginning of the file.
-            gens.extend(self.unsaved_gens_data)
+            gens_stats.extend(self.unsaved_gens_stats)
             file.seek(0)
-            file.write(json.dumps(gens))
+            file.write(json.dumps(gens_stats))
             file.truncate() # Clears possible old data, if write length was smaller than the original file length.
         
-        self.unsaved_gens_data = []
+        self.unsaved_gens_genomes = bytearray()
+        self.unsaved_gens_stats = []
         print(f"save_time = {time.time() - start_time}")
 
     def load_gens(self):
         # Save if there are gens not saved
-        if len(self.unsaved_gens_data) > 0:
+        if len(self.unsaved_gens_stats) > 0:
             self.save_gens()
         
         # Load the file into an object and return it.
-        result = None
-        filepath = os.path.join(self.path, "gens.json")
-        with open(filepath, "r") as file:
-            content = file.read()
-            result = json.loads(content)
         
-        return result
+        gens_filepath = os.path.join(self.path, "gens.bin")
+        stats_filepath = os.path.join(self.path, "stats.json")
+
+        gens : bytearray = None
+        stats = None
+        with open(gens_filepath, "rb") as file:
+            gens = file.read()
+        with open(stats_filepath, "r") as file:
+            stats = json.loads(file.read())
+        
+        return gens, stats

@@ -41,7 +41,7 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-bytedna = ByteDNA(input_funcs, output_funcs, 6, 3, 2, 100, 5, 5, 12)
+bytedna = ByteDNA(input_funcs, output_funcs, 4, 3, 1, 100, 5, 5, 12)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
@@ -60,10 +60,10 @@ lab = Lab(bytedna, selection_criteria, name="bytedna_test1", steps_per_gen=64, p
 
 # PROGRAM
 
-lab.run_generations(9)
-steps_data = lab.run_generation(return_steps_data=True)
-view.view_generation(steps_data)
-view.view_evolution_chart(lab.load_gens(), lab.population, bytedna.genome_len)
+lab.run_generations(100)
+#steps_data = lab.run_generation(return_steps_data=True)
+#view.view_generation(steps_data)
+#view.view_evolution_chart(lab.load_gens(), lab.population, bytedna.genome_len)
 
 #lab.run_generation(debug=True)
 
