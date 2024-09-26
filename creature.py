@@ -1,21 +1,21 @@
 import numpy as np
-from dna import DNA
+from bytedna import ByteDNA
 
 class Creature:
-    def __init__(self, data : dict, genome : list, dna : DNA, generation):
+    def __init__(self, data : dict, genome : bytearray, bytedna : ByteDNA, generation):
         # Setup Creature's variables
         self.data : dict = data
-        self.genome : list = genome
-        self.dna : DNA = dna
+        self.genome : bytearray = genome
+        self.bytedna : ByteDNA = bytedna
         self.generation = generation
 
         # Add creature to this point in the map
         generation.map[data["x"]][data["y"]] = 1
 
         # Setup neuralnet
-        optimized_genome = self.dna.get_optimized_genome(genome)
-        self.neurons_inputs, self.neurons_output, self.neurons_function, include_dict = self.dna.get_needed_neurons(optimized_genome)
-        self.conns_source_id, self.conns_sink_id, self.conns_weight = self.dna.genome_to_conns(optimized_genome, include_dict)
+        optimized_genome = self.bytedna.get_optimized_genome(genome)
+        self.neurons_inputs, self.neurons_output, self.neurons_function, include_dict = self.bytedna.get_needed_neurons(optimized_genome)
+        self.conns_source_id, self.conns_sink_id, self.conns_weight = self.bytedna.genome_to_conns(optimized_genome, include_dict)
         
 
     def update(self):

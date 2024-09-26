@@ -216,8 +216,12 @@ class ByteDNA:
 
         return result
 
+    def get_separated_genomes(self, genomes : bytearray):
+        return [genomes[i : i + (self.gene_bytes * self.genome_len)] for i in range(0, len(genomes), self.gene_bytes * self.genome_len)]
+
     def get_separated_genome(self, genome : bytearray):
-        return [genome[i : i + self.gene_bytes] for i in range(0, len(genome), self.gene_bytes)]
+        result = [genome[i : i + self.gene_bytes] for i in range(0, len(genome), self.gene_bytes)]
+        return result
 
     def get_all_neurons(self):
         neurons_inputs = []
@@ -262,6 +266,19 @@ class ByteDNA:
         include_outputs = np.full(len(self.outputs), False, dtype=bool)
         include_inners = np.full(self.inner_neurons, False, dtype=bool)
 
+        # Result lists
+        neurons_inputs = []
+        neurons_output = []
+        neurons_function = []
+
+        # Results empty neuron lists and default includes if genome has no valid genes.
+        if len(genome) == 0:
+            return neurons_inputs, neurons_output, neurons_function, {
+                "include_inputs": include_inputs,
+                "include_outputs": include_outputs,
+                "include_inners": include_inners
+            }
+
         # Includes neurons in the result.
         def include_neuron(is_source : bool, type : int, id : int):
             nonlocal include_inputs, include_outputs, include_inners
@@ -279,12 +296,6 @@ class ByteDNA:
         for decoded_gene in decoded_genome:
             include_neuron(True, decoded_gene["source_type"], decoded_gene["source_id"])
             include_neuron(False, decoded_gene["sink_type"], decoded_gene["sink_id"])
-        
-
-        # Result lists
-        neurons_inputs = []
-        neurons_output = []
-        neurons_function = []
 
         # Add the included neurons in their correct order to the result lists
         all_includes = [include_inputs, include_inners, include_outputs]
@@ -349,7 +360,7 @@ class ByteDNA:
             else: inner_neurons_included.append(False)
         
         # Adds only the needed genes to the result
-        optimized_genome = []
+        optimized_genome = bytearray()
         for i in range(len(separated_genome)):
             decoded_gene = decoded_genome[i]
             source_type = decoded_gene["source_type"]
@@ -365,7 +376,7 @@ class ByteDNA:
                 include_gene = False
             
             # Add gene if included
-            if include_gene == True: optimized_genome.append(separated_genome[i])
+            if include_gene == True: optimized_genome.extend(separated_genome[i])
         
         return optimized_genome
 
@@ -383,6 +394,10 @@ class ByteDNA:
         conns_source_id = []
         conns_sink_id = []
         conns_weight = []
+
+        # Return empty lists of conns, if genome has no valid genes.
+        if len(genome) == 0:
+            return conns_source_id, conns_sink_id, conns_weight
 
         # Lengths
         ins = len(self.inputs)

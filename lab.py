@@ -1,18 +1,18 @@
 import os
 import json
 import time
-from dna import DNA
+from bytedna import ByteDNA
 from generation import Generation
 
 class Lab:
-    def __init__(self, dna : DNA, selection_criteria : list, 
+    def __init__(self, bytedna : ByteDNA, selection_criteria : list, 
                  world_size : int = 32, population : int = 128, steps_per_gen : int = 128,
                  gens_per_save : int = 100,
                  name : str = "default", 
                  path : str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saves")):
         
         # Setup Lab's variables.
-        self.dna : DNA = dna
+        self.bytedna : ByteDNA = bytedna
         self.selection_criteria : list = selection_criteria
         self.world_size : int = world_size
         self.population : int = population
@@ -46,20 +46,20 @@ class Lab:
         # [Gen 1+] genomes are crossovered
         if genomes == None:
             if self.gen == 0:
-                genomes = self.dna.random_genomes(self.population)
+                genomes = self.bytedna.random_genomes(self.population)
             else:
-                genomes = self.dna.crossover(self.last_survived_genomes, self.population)
+                genomes = self.bytedna.crossover(self.last_survived_genomes, self.population)
         
         # Create the new generation and run it
-        generation = Generation(genomes, self.dna, self.world_size, self.population, self.steps_per_gen)
+        generation = Generation(genomes, self.bytedna, self.world_size, self.population, self.steps_per_gen)
         generation.run(return_steps_data, debug)
 
         # Get survived creatures genomes and save them to the lab. So the next gen can use these as parens.
         if new_gen == True:
             self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
             gen_data["genomes"] = genomes
-            gen_data["survived"] = len(self.last_survived_genomes)
-            gen_data["diversity"] = self.dna.average_hamming_distance(genomes)
+            gen_data["survived"] = len(self.bytedna.get_separated_genome(self.last_survived_genomes))
+            gen_data["diversity"] = self.bytedna.average_hamming_distance(genomes, self.population)
             self.unsaved_gens_data.append(gen_data)
 
             if len(self.unsaved_gens_data) >= self.gens_per_save:
@@ -73,7 +73,7 @@ class Lab:
 
         for i in range(count):
             self.run_generation()
-            print(f"[{int(time.time() - start_time)}s / gen {self.gen}] survived = {len(self.last_survived_genomes)}")
+            print(f"[{int(time.time() - start_time)}s / gen {self.gen}] survived = {round(len(self.last_survived_genomes) / (self.bytedna.genome_len * self.bytedna.gene_bytes))}")
         
         self.save_gens()
     
@@ -94,6 +94,10 @@ class Lab:
         # Creates the file if it doesn't exist.
         if not os.path.isfile(filepath):
             open(filepath, "x")
+
+        # TEMPORARY GENS FIX
+        #for i in range(len(self.unsaved_gens_data)):
+            #self.unsaved_gens_data["genomes"] = self.unsaved_gens_data["genomes"].decode("utf-8")
         
         # Open the file for reading + writing
         with open(filepath, "r+") as file:

@@ -1,5 +1,4 @@
 from lab import Lab
-from dna import DNA
 from bytedna import ByteDNA
 from generation import Generation
 import view
@@ -42,7 +41,7 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-dna = DNA(input_funcs, output_funcs, 16, 8, 0.01)
+bytedna = ByteDNA(input_funcs, output_funcs, 6, 3, 2, 100, 5, 5, 12)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [{
@@ -55,7 +54,7 @@ selection_criteria = [{
     "operator": ">",
     "value": 20
 }]
-lab = Lab(dna, selection_criteria, name="test1", steps_per_gen=64, population=512, world_size=64)
+lab = Lab(bytedna, selection_criteria, name="bytedna_test1", steps_per_gen=64, population=128, world_size=32)
 
 
 
@@ -64,7 +63,7 @@ lab = Lab(dna, selection_criteria, name="test1", steps_per_gen=64, population=51
 lab.run_generations(9)
 steps_data = lab.run_generation(return_steps_data=True)
 view.view_generation(steps_data)
-view.view_evolution_chart(lab.load_gens(), lab.population, dna.genome_len)
+view.view_evolution_chart(lab.load_gens(), lab.population, bytedna.genome_len)
 
 #lab.run_generation(debug=True)
 

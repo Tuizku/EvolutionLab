@@ -1,14 +1,14 @@
 import numpy as np
 import copy
 import time
-from dna import DNA
+from bytedna import ByteDNA
 from creature import Creature
 
 class Generation:
-    def __init__(self, genomes, dna : DNA, world_size : int, population : int, steps_per_gen : int):
+    def __init__(self, genomes, bytedna : ByteDNA, world_size : int, population : int, steps_per_gen : int):
         # Setup Generation's variables
         self.genomes : list = genomes
-        self.dna : DNA = dna
+        self.bytedna : ByteDNA = bytedna
         self.world_size : int = world_size
         self.population : int = population
         self.steps_per_gen : int = steps_per_gen
@@ -22,13 +22,14 @@ class Generation:
 
         # Create the creatures
         self.creatures = []
-        for genome in self.genomes:
+        genomes_list = self.bytedna.get_separated_genomes(self.genomes)
+        for genome in genomes_list:
             x, y = self.get_empty_pos()
             data = {
                 "x": x,
                 "y": y
             }
-            self.creatures.append(Creature(data, genome, self.dna, self))
+            self.creatures.append(Creature(data, genome, self.bytedna, self))
         
         setup_time = time.time() - start_time
         start_time = time.time()
@@ -46,7 +47,7 @@ class Generation:
             print(f"GEN DEBUG -> setup_time = {round(setup_time, 6)}, steps_time = {round(steps_time, 6)}")
             
     def get_selection_genomes(self, selection_criteria : list):
-        result_genomes = []
+        result_genomes = bytearray()
         
         # Loop through all creatures and adds the creatures that match the criteria to the result list.
         for creature in self.creatures:
@@ -69,7 +70,7 @@ class Generation:
             
             # Creature's genome is added to the result, IF it survives.
             if survives == True:
-                result_genomes.append(creature.genome)
+                result_genomes.extend(creature.genome)
         
         return result_genomes
 
