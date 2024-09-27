@@ -63,10 +63,9 @@ def view_generation(steps_data):
     except:
         return
 
-def view_evolution_chart(gens_data : list, population : int, genome_len : int):
-    survived_list = [gen["survived"] for gen in gens_data]
-
-    diversity_list = [gen["diversity"] for gen in gens_data]
+def view_evolution_chart(gens_stats : list, population : int):
+    survived_list = [gen_stats["survived"] for gen_stats in gens_stats]
+    diversity_list = [gen_stats["diversity"] for gen_stats in gens_stats]
 
     host = host_subplot(111)
     par = host.twinx()

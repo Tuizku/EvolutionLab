@@ -54,19 +54,28 @@ class Generation:
             data = creature.data
             survives = True
 
-            # Loop through all criteria
+            # Put all names from criteria into a list.
+            criteria_names = []
             for criterion in selection_criteria:
-                name = criterion["name"]
-                operator = criterion["operator"]
-                value = criterion["value"]
+                if not criterion["name"] in criteria_names: criteria_names.append(criterion["name"])
 
-                # Check if creature survives by the operator that is being used
-                if operator == "=":
-                    if data[name] != value: survives = False
-                elif operator == "<":
-                    if data[name] >= value: survives = False
-                elif operator == ">":
-                    if data[name] <= value: survives = False
+            for name in criteria_names:
+                matches_criterion = True
+                name_criteria = [criterion for criterion in selection_criteria if criterion["name"] == name]
+                for criterion in name_criteria:
+                    operator = criterion["operator"]
+                    value = criterion["value"]
+
+                    # Check if creature survives by the operator that is being used
+                    if operator == "=":
+                        if data[name] != value: matches_criterion = False
+                    elif operator == "<":
+                        if data[name] >= value: matches_criterion = False
+                    elif operator == ">":
+                        if data[name] <= value: matches_criterion = False
+
+                survives = matches_criterion
+                if survives == False: break
             
             # Creature's genome is added to the result, IF it survives.
             if survives == True:

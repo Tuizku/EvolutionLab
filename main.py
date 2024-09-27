@@ -41,33 +41,38 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-bytedna = ByteDNA(input_funcs, output_funcs, 4, 3, 1, 100, 5, 5, 12)
+bytedna = ByteDNA(input_funcs, output_funcs, 12, 3, 4, 100, 5, 5, 12)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
-selection_criteria = [{
+selection_criteria = [
+{
+    "name": "x",
+    "operator": "<",
+    "value": 22
+},
+{
     "name": "x",
     "operator": ">",
-    "value": 20
+    "value": 10
+},
+{
+    "name": "y",
+    "operator": "<",
+    "value": 22
 },
 {
     "name": "y",
     "operator": ">",
-    "value": 20
+    "value": 10
 }]
-lab = Lab(bytedna, selection_criteria, name="bytedna_test1", steps_per_gen=64, population=128, world_size=32)
+lab = Lab(bytedna, selection_criteria, name="bytedna_centertest", steps_per_gen=64, population=128, world_size=32)
 
 
 
 # PROGRAM
 
-lab.run_generations(100)
-#steps_data = lab.run_generation(return_steps_data=True)
-#view.view_generation(steps_data)
-#view.view_evolution_chart(lab.load_gens(), lab.population, bytedna.genome_len)
-
-#lab.run_generation(debug=True)
-
-# gens_data = lab.load_gens()
-# steps_data = lab.run_generation(gens_data[-1]["genomes"], False, True)
-# view.view_generation(steps_data)
-# view.view_evolution_chart(gens_data, lab.population, dna.genome_len)
+lab.run_generations(999)
+steps_data = lab.run_generation(return_steps_data=True)
+view.view_generation(steps_data)
+genomes, stats = lab.load_gens()
+view.view_evolution_chart(stats, lab.population)

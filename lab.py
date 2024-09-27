@@ -25,9 +25,8 @@ class Lab:
         self.unsaved_gens_genomes = bytearray()
         self.unsaved_gens_stats = []
 
-        # Setup path and directories for the lab "project".
+        # Create the path
         self.path = os.path.join(path, name)
-        os.makedirs(self.path, exist_ok=True)
 
         self.try_load_lab()
     
@@ -58,7 +57,7 @@ class Lab:
         if new_gen == True:
             self.last_survived_genomes = generation.get_selection_genomes(self.selection_criteria)
             
-            gen_stats["survived"] = len(self.bytedna.get_separated_genome(self.last_survived_genomes))
+            gen_stats["survived"] = len(self.bytedna.get_separated_genomes(self.last_survived_genomes))
             gen_stats["diversity"] = self.bytedna.average_hamming_distance(genomes, self.population)
             self.unsaved_gens_stats.append(gen_stats)
             self.unsaved_gens_genomes.extend(genomes)
@@ -81,27 +80,77 @@ class Lab:
 
 
     def try_load_lab(self):
-        gens_filepath = os.path.join(self.path, "gens.bin")
+        properties_filepath = os.path.join(self.path, "properties.json")
+        genomes_filepath = os.path.join(self.path, "genomes.bin")
         stats_filepath = os.path.join(self.path, "stats.json")
 
-        if os.path.isfile(gens_filepath) and os.path.isfile(stats_filepath):
-            gens, stats = self.load_gens()
+        # Setup directories for the lab "project".
+        os.makedirs(self.path, exist_ok=True)
+
+        # Check if the lab project exists already, and gives an error if lab properties are different
+        if os.path.isfile(properties_filepath):
+            with open(properties_filepath, "r") as file:
+                properties = json.loads(file.read())
+                
+                # Compare, if all the properties match with the save
+                lab_properties_match = True
+                if properties["inputs_len"] != len(self.bytedna.inputs): lab_properties_match = False
+                elif properties["outputs_len"] != len(self.bytedna.outputs): lab_properties_match = False
+                elif properties["genome_len"] != self.bytedna.genome_len: lab_properties_match = False
+                elif properties["gene_bytes"] != self.bytedna.gene_bytes: lab_properties_match = False
+                elif properties["inner_neurons"] != self.bytedna.inner_neurons: lab_properties_match = False
+                elif properties["mutation_interval"] != self.bytedna.mutation_interval: lab_properties_match = False
+                elif properties["source_id_len"] != self.bytedna.source_id_len: lab_properties_match = False
+                elif properties["sink_id_len"] != self.bytedna.sink_id_len: lab_properties_match = False
+                elif properties["weight_len"] != self.bytedna.weight_len: lab_properties_match = False
+                elif properties["weight_range"] != self.bytedna.weight_range: lab_properties_match = False
+                elif properties["world_size"] != self.world_size: lab_properties_match = False
+                elif properties["population"] != self.population: lab_properties_match = False
+                elif properties["steps_per_gen"] != self.steps_per_gen: lab_properties_match = False
+                if lab_properties_match == False:
+                    print("\033[31mALL LAB PROPERTIES DID NOT MATCH, MAKE SURE THAT YOUR LAB PROPERTIES MATCH WITH THE PROPERTIES IN THE SAVE'S 'properties.json'\033[0m")
+                    print("\033[33mEXITING THE PROGRAM\033[0m")
+                    exit()
+
+        # Lab project doesn't exist, so it creates one with saved lab properties.
+        else:
+            with open(properties_filepath, "w") as file:
+                properties = {
+                    "inputs_len": len(self.bytedna.inputs),
+                    "outputs_len": len(self.bytedna.outputs),
+                    "genome_len": self.bytedna.genome_len,
+                    "gene_bytes": self.bytedna.gene_bytes,
+                    "inner_neurons": self.bytedna.inner_neurons,
+                    "mutation_interval": self.bytedna.mutation_interval,
+                    "source_id_len": self.bytedna.source_id_len,
+                    "sink_id_len": self.bytedna.sink_id_len,
+                    "weight_len": self.bytedna.weight_len,
+                    "weight_range": self.bytedna.weight_range,
+                    "world_size": self.world_size,
+                    "population": self.population,
+                    "steps_per_gen": self.steps_per_gen
+                }
+                file.write(json.dumps(properties, indent=4))
+
+        # Load the needed lab data to continue simulating evolution.
+        if os.path.isfile(genomes_filepath) and os.path.isfile(stats_filepath):
+            genomes, stats = self.load_gens()
             self.gen = len(stats) - 1
-            self.last_survived_genomes = gens[-(self.bytedna.gene_bytes * self.bytedna.genome_len * self.population):]
+            self.last_survived_genomes = genomes[-(self.bytedna.gene_bytes * self.bytedna.genome_len * self.population):]
 
     def save_gens(self):
         start_time = time.time()
-        gens_filepath = os.path.join(self.path, "gens.bin")
+        genomes_filepath = os.path.join(self.path, "genomes.bin")
         stats_filepath = os.path.join(self.path, "stats.json")
 
         # Creates the files if they do not exist.
-        if not os.path.isfile(gens_filepath):
-            open(gens_filepath, "xb")
+        if not os.path.isfile(genomes_filepath):
+            open(genomes_filepath, "xb")
         if not os.path.isfile(stats_filepath):
             open(stats_filepath, "x")
         
         # Open the gens file for appending binary
-        with open(gens_filepath, "ab") as file:
+        with open(genomes_filepath, "ab") as file:
             file.write(self.unsaved_gens_genomes)
 
         # Open the stats file for reading + writing
@@ -120,7 +169,7 @@ class Lab:
         
         self.unsaved_gens_genomes = bytearray()
         self.unsaved_gens_stats = []
-        print(f"save_time = {time.time() - start_time}")
+        print(f"save_time = {round(time.time() - start_time, 4)}s")
 
     def load_gens(self):
         # Save if there are gens not saved
@@ -129,14 +178,14 @@ class Lab:
         
         # Load the file into an object and return it.
         
-        gens_filepath = os.path.join(self.path, "gens.bin")
+        genomes_filepath = os.path.join(self.path, "genomes.bin")
         stats_filepath = os.path.join(self.path, "stats.json")
 
-        gens : bytearray = None
-        stats = None
-        with open(gens_filepath, "rb") as file:
-            gens = file.read()
+        gens_genomes : bytearray = None
+        gens_stats = None
+        with open(genomes_filepath, "rb") as file:
+            gens_genomes = file.read()
         with open(stats_filepath, "r") as file:
-            stats = json.loads(file.read())
+            gens_stats = json.loads(file.read())
         
-        return gens, stats
+        return gens_genomes, gens_stats

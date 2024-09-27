@@ -451,15 +451,19 @@ class ByteDNA:
         This can be used to see how different dna the creatures have.
         """
 
+        genome_bytes = self.gene_bytes * self.genome_len
+        genome_bits = self.gene_bits * self.genome_len
+
         diverse_bits = 0
-        int_genomes = [int.from_bytes(genomes[i * self.genome_len : i * self.genome_len + self.genome_len]) for i in range(population)]
+        comparisons = 0
+        int_genomes = [int.from_bytes(genomes[i * genome_bytes : i * genome_bytes + genome_bytes]) for i in range(population)]
 
         for i in range(0, population - 1):
             for j in range(1, population):
                 diverse_bits += (int_genomes[i] ^ int_genomes[j]).bit_count()
+                comparisons += 1
         
-        all_bits = self.gene_bits * self.genome_len * population
-        result = diverse_bits / (all_bits * 0.5)
+        result = diverse_bits / comparisons / genome_bits * 2
 
         return result
 
