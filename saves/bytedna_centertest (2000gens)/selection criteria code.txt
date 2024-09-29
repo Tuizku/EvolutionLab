@@ -1,0 +1,21 @@
+selection_criteria = [
+{
+    "name": "x",
+    "operator": "<",
+    "value": 22
+},
+{
+    "name": "x",
+    "operator": ">",
+    "value": 10
+},
+{
+    "name": "y",
+    "operator": "<",
+    "value": 22
+},
+{
+    "name": "y",
+    "operator": ">",
+    "value": 10
+}]

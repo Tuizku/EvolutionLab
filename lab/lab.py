@@ -1,15 +1,15 @@
 import os
 import json
 import time
-from bytedna import ByteDNA
-from generation import Generation
+from lab.bytedna import ByteDNA
+from lab.generation import Generation
 
 class Lab:
     def __init__(self, bytedna : ByteDNA, selection_criteria : list, 
                  world_size : int = 32, population : int = 128, steps_per_gen : int = 128,
                  gens_per_save : int = 100,
                  name : str = "default", 
-                 path : str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saves")):
+                 path : str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "saves")):
         
         # Setup Lab's variables.
         self.bytedna : ByteDNA = bytedna

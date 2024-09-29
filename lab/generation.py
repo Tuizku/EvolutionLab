@@ -1,8 +1,8 @@
 import numpy as np
 import copy
 import time
-from bytedna import ByteDNA
-from creature import Creature
+from lab.bytedna import ByteDNA
+from lab.creature import Creature
 
 class Generation:
     def __init__(self, genomes, bytedna : ByteDNA, world_size : int, population : int, steps_per_gen : int):

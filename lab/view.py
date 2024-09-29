@@ -5,10 +5,15 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import time
 
 def view_generation(steps_data):
+    """Opens a window that shows the generation frame by frame. (It draws the map and creatures)"""
+
+    # SETUP
+
     root = Tk()
     root.title("View Generation")
     root.geometry("1920x1080")
     root.attributes('-fullscreen', True)
+    root.call('wm', 'attributes', '.', '-topmost', True)
     root.configure(background="black")
 
     canvas = Canvas(root, bg="black", width=1920, height=1080, highlightthickness=0)
@@ -34,6 +39,9 @@ def view_generation(steps_data):
     canvas.update()
     time.sleep(1)
 
+
+    # DRAW FRAMES
+
     for step in range(len(steps_data)):
         step_data = steps_data[step]
         step_map = step_data["map"]
@@ -51,12 +59,13 @@ def view_generation(steps_data):
                 if step_map[x][y] == 1:
                     color = "lime"
 
+                # Draws the pixel
                 x_pos = start_x + (x * cell_size)
                 y_pos = start_y + (y * cell_size)
                 canvas.create_rectangle(x_pos, y_pos, x_pos + cell_size, y_pos + cell_size, fill=color, width="0", tags="cell")
         
         canvas.update()
-        time.sleep(0.1)
+        time.sleep(0.1) # < 10FPS
     
     try:
         root.destroy()
@@ -64,6 +73,8 @@ def view_generation(steps_data):
         return
 
 def view_evolution_chart(gens_stats : list, population : int):
+    """Opens a window that shows the evolution chart."""
+    
     survived_list = [gen_stats["survived"] for gen_stats in gens_stats]
     diversity_list = [gen_stats["diversity"] for gen_stats in gens_stats]
 

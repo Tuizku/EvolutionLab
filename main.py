@@ -1,7 +1,8 @@
-from lab import Lab
-from bytedna import ByteDNA
-from generation import Generation
-import view
+from lab.lab import Lab
+from lab.bytedna import ByteDNA
+from lab.generation import Generation
+import lab.view as view
+import lab_manager
 
 
 # NEURON FUNCTIONS
@@ -41,38 +42,20 @@ def moveLEFT(activation : float, data : dict, generation : Generation):
 # CREATE DNA WITH THESE FUNCTIONS
 input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
-bytedna = ByteDNA(input_funcs, output_funcs, 12, 3, 4, 100, 5, 5, 12)
+bytedna = ByteDNA(input_funcs, output_funcs, 4, 3, 1, 100, 5, 5, 12)
 
 # CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
 selection_criteria = [
 {
     "name": "x",
     "operator": "<",
-    "value": 22
-},
-{
-    "name": "x",
-    "operator": ">",
-    "value": 10
-},
-{
-    "name": "y",
-    "operator": "<",
-    "value": 22
-},
-{
-    "name": "y",
-    "operator": ">",
-    "value": 10
+    "value": 16
 }]
-lab = Lab(bytedna, selection_criteria, name="bytedna_centertest", steps_per_gen=64, population=128, world_size=32)
+
+# CREATE THE LAB INSTANCE
+lab = Lab(bytedna, selection_criteria, name="bytedna_test3", steps_per_gen=64, population=128, world_size=32)
 
 
 
-# PROGRAM
-
-lab.run_generations(999)
-steps_data = lab.run_generation(return_steps_data=True)
-view.view_generation(steps_data)
-genomes, stats = lab.load_gens()
-view.view_evolution_chart(stats, lab.population)
+# OPEN LAB MANAGER
+lab_manager.open_lab_manager(lab, bytedna)

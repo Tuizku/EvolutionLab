@@ -1,5 +1,5 @@
 import numpy as np
-from bytedna import ByteDNA
+from lab.bytedna import ByteDNA
 
 class Creature:
     def __init__(self, data : dict, genome : bytearray, bytedna : ByteDNA, generation):
