@@ -42,10 +42,12 @@ class Generation:
             if save_steps == True:
                 self.steps_data.append({"map": copy.deepcopy(self.map)})
         
+        # Debug time (if enabled)
         steps_time = time.time() - start_time
         if debug == True:
             print(f"GEN DEBUG -> setup_time = {round(setup_time, 6)}, steps_time = {round(steps_time, 6)}")
             
+
     def get_selection_genomes(self, selection_criteria : list):
         result_genomes = bytearray()
         
@@ -86,6 +88,7 @@ class Generation:
 
 
     def get_empty_pos(self):
+        # Tries 10 000 times to find an empty random pos from map.
         for i in range(10000):
             x = np.random.randint(0, self.world_size)
             y = np.random.randint(0, self.world_size)

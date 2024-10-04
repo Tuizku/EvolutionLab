@@ -1,6 +1,5 @@
 from tkinter import *
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 from mpl_toolkits.axes_grid1 import host_subplot
 import time
 

@@ -44,7 +44,7 @@ input_funcs = [disUP, disDOWN, disRIGHT, disLEFT]
 output_funcs = [moveUP, moveDOWN, moveRIGHT, moveLEFT]
 bytedna = ByteDNA(input_funcs, output_funcs, 4, 3, 1, 100, 5, 5, 12)
 
-# CREATE A LAB WITH A SELECTION CRITERIA (WHICH CREATURES SURVIVE)
+# CREATE A SELECTION CRITERIA (WHICH CREATURES SURVIVE IN LAB)
 selection_criteria = [
 {
     "name": "x",
@@ -53,8 +53,7 @@ selection_criteria = [
 }]
 
 # CREATE THE LAB INSTANCE
-lab = Lab(bytedna, selection_criteria, name="bytedna_test3", steps_per_gen=64, population=128, world_size=32)
-
+lab = Lab(bytedna, selection_criteria, name="left_test", steps_per_gen=64, population=128, world_size=32)
 
 
 # OPEN LAB MANAGER

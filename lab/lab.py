@@ -62,6 +62,7 @@ class Lab:
             self.unsaved_gens_stats.append(gen_stats)
             self.unsaved_gens_genomes.extend(genomes)
 
+            # Possible auto save
             if len(self.unsaved_gens_stats) >= self.gens_per_save:
                 self.save_gens()
 

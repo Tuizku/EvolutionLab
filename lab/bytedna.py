@@ -43,13 +43,13 @@ class ByteDNA:
         self.weight_range = weight_range
 
 
-        # Decode shifts
+        # Setup decode shifts
         self.source_type_shift = self.gene_bits - 1
         self.source_id_shift = self.gene_bits - 1 - self.source_id_len
         self.sink_type_shift = self.gene_bits - 1 - self.source_id_len - 1
         self.sink_id_shift = self.gene_bits - 1 - self.source_id_len - 1 - self.sink_id_len
 
-        # Decode masks
+        # Setup decode masks
         self.source_type_mask = 1
         self.source_id_mask = (1 << self.source_id_len) - 1
         self.sink_type_mask = 1
@@ -136,7 +136,7 @@ class ByteDNA:
         
         result_genomes_count = round(len(result_genomes) / self.genome_len / self.gene_bytes)
         if result_genomes_count < population:
-            print(f"dna crossover resulted a smaller population ({result_genomes_count}/{population})")
+            print(f"dna crossover population was smaller than the needed population ({result_genomes_count}/{population})")
 
         self.mutate(result_genomes)
         return result_genomes
@@ -150,10 +150,10 @@ class ByteDNA:
         mutation_triggers = np.random.randint(0, self.mutation_interval, size=genes_in_genomes)
         for i in range(genes_in_genomes):
             if mutation_triggers[i] == 0:
-                #print(f"{bin(int(genomes[i * gene_bytes]))} {bin(int(genomes[i * gene_bytes + 1]))} {bin(int(genomes[i * gene_bytes + 2]))}")
+                # Takes a random byte from gene, random bit from that, and flips it
                 byte_id = np.random.randint(0, self.gene_bytes)
                 mask = 1 << (7 - np.random.randint(0, 7))
-                genomes[i * self.gene_bytes + byte_id] ^= mask
+                genomes[i * self.gene_bytes + byte_id] ^= mask # XOR bitwise operation
 
 
 
@@ -454,16 +454,18 @@ class ByteDNA:
         genome_bytes = self.gene_bytes * self.genome_len
         genome_bits = self.gene_bits * self.genome_len
 
-        diverse_bits = 0
-        comparisons = 0
+        diverse_bits = 0 # how many bits were different in all comparisons
+        comparisons = 0 # comparisons count
+
+        # Combines genome's genes into large integers. Every genome is represented as an int.
         int_genomes = [int.from_bytes(genomes[i * genome_bytes : i * genome_bytes + genome_bytes]) for i in range(population)]
 
+        # Does all comparisons. Every genome is compared to every genome but not itself.
         for i in range(0, population - 1):
             for j in range(1, population):
                 diverse_bits += (int_genomes[i] ^ int_genomes[j]).bit_count()
                 comparisons += 1
         
         result = diverse_bits / comparisons / genome_bits * 2
-
         return result
 
