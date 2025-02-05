@@ -1,5 +1,6 @@
 <h1>EvolutionLab</h1>
-![image](https://github.com/user-attachments/assets/58e0066c-4eae-41d6-bc08-81ff760987b5)
+![image](https://github.com/user-attachments/assets/fad63130-151c-4c84-9bb6-b53fe667df66)
+
 
 
 <h3>About</h3>
